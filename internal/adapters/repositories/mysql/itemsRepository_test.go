@@ -14,6 +14,10 @@ const (
 	cartItemsGetQuery = "SELECT name, quantity, reservationId FROM cartItem"
 )
 
+var (
+	randomError = errors.New("random error")
+)
+
 // Always useful to add CartItemRepoMocks into the struct, so it´s easier to add more CartItemRepoMocks in the future
 // No additional parameters are needed.
 type CartItemRepoMocks struct {
@@ -22,8 +26,7 @@ type CartItemRepoMocks struct {
 
 // We use Gherkin notation for the tests
 func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
-	randomError := errors.New("random error")
-
+	
 	type want struct {
 		err   error
 		items []model.CartItem
@@ -48,7 +51,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 		}, {
 			name: "WhenGetAndErrorInScan_ThenError",
 			mocks: func(m CartItemRepoMocks) {
-				// We need to call NewRows in every test 
+				// We need to call NewRows in every test
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
@@ -71,7 +74,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 						AddRow("pants", 1, "reservationId1"))
 			},
 			want: want{
-				err:   nil,
+				err: nil,
 				items: []model.CartItem{
 					{Name: "pants", Quantity: 1, ReservationId: "reservationId1"},
 				},
@@ -84,11 +87,11 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows([]string{
 						"name", "quantity", "reservationId",
 					}).
-						AddRow("bottle", 10, "reservationId5",).
-						AddRow("shirt", 2, "reservationId2",))
+						AddRow("bottle", 10, "reservationId5").
+						AddRow("shirt", 2, "reservationId2"))
 			},
 			want: want{
-				err:   nil,
+				err: nil,
 				items: []model.CartItem{
 					{Name: "bottle", Quantity: 10, ReservationId: "reservationId5"},
 					{Name: "shirt", Quantity: 2, ReservationId: "reservationId2"},
@@ -123,3 +126,82 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 
 	}
 }
+
+func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
+	insertQuery := `INSERT INTO cartItem (id, name, quantity) 
+		VALUES (?, ?, ?) ON DUPLICATED KEY UPDATE quantity = quantity + ?`
+
+	randomCartItem := model.CartItem{
+		Id:            "1",
+		Name:          "screen",
+		Quantity:      2,
+	}
+
+	type input struct {
+		item model.CartItem
+	}
+	type want struct {
+		err   error
+	}
+
+	tests := []struct {
+		name  string
+		in    input
+		mocks func(m CartItemRepoMocks)
+		want  want
+	}{
+		{
+			name: "WhenAddItemAndInsertError_ThenError",
+			in: input {
+				item: randomCartItem,
+			},
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.
+					ExpectExec(insertQuery).
+					WithArgs(randomCartItem.Id, randomCartItem.Name, randomCartItem.Quantity, randomCartItem.Quantity).
+					WillReturnError(errors.New("insert error"))
+			},
+			want: want {
+				err: randomError,
+			},
+		}, {
+			name: "WhenAddItemAndInsertOK_ThenOK",
+			in: input {
+				item: randomCartItem,
+			},
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.
+					ExpectExec(insertQuery).
+					WithArgs(randomCartItem.Id, randomCartItem.Name, randomCartItem.Quantity, randomCartItem.Quantity).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			want: want {
+				err: nil,
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db, dbMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+			if err != nil {
+				t.Fatalf("Error when creating the mock: %v", err)
+			}
+			m := CartItemRepoMocks{sql: dbMock}
+			defer db.Close()
+
+			tc.mocks(m)
+
+			r := NewCartItemsRepository(db)
+			
+			addErr := r.Add(context.TODO(), tc.in.item)
+			
+			if tc.want.err != nil {
+				assert.Error(t, addErr)
+			} else {
+				assert.NoError(t, addErr)
+			}
+		})
+	}
+
+}
+

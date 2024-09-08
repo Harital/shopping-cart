@@ -70,15 +70,15 @@ func (mr *MockCartItemsRepositoryMockRecorder) Get(arg0 any) *gomock.Call {
 }
 
 // SetReservationId mocks base method.
-func (m *MockCartItemsRepository) SetReservationId(arg0 model.CartItem, arg1 string) error {
+func (m *MockCartItemsRepository) SetReservationId(arg0 context.Context, arg1 model.CartItem, arg2 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetReservationId", arg0, arg1)
+	ret := m.ctrl.Call(m, "SetReservationId", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetReservationId indicates an expected call of SetReservationId.
-func (mr *MockCartItemsRepositoryMockRecorder) SetReservationId(arg0, arg1 any) *gomock.Call {
+func (mr *MockCartItemsRepositoryMockRecorder) SetReservationId(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetReservationId", reflect.TypeOf((*MockCartItemsRepository)(nil).SetReservationId), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetReservationId", reflect.TypeOf((*MockCartItemsRepository)(nil).SetReservationId), arg0, arg1, arg2)
 }

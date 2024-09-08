@@ -9,6 +9,10 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 )
 
+const (
+	cartItemTable = "cartItem"
+)
+
 type CartItemsRepository struct {
 	db *sql.DB
 }
@@ -23,7 +27,7 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 	sb := sqlbuilder.MySQL.NewSelectBuilder()
 	sb.
 		Select("name", "quantity", "reservationId").
-		From("cartItem")
+		From(cartItemTable)
 
 	query, args := sb.Build()
 	rows, selectErr := cir.db.QueryContext(ctx, query, args...)
@@ -49,13 +53,46 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 
 func (cir *CartItemsRepository) Add(ctx context.Context, item model.CartItem) error {
 
+	sb := sqlbuilder.MySQL.NewInsertBuilder()
+	sb.
+		InsertInto(cartItemTable).
+		Cols("id", "name", "quantity").
+		Values(item.Id, item.Name, item.Quantity)
+
+	// I know it´s a little nasty, but sqlbuilder does not support on dupplicated key
+	// https://github.com/huandu/go-sqlbuilder/issues/15
+	builder := sqlbuilder.Build("$? ON DUPLICATED KEY UPDATE quantity = quantity + $?", sb, item.Quantity)
+	query, args := builder.Build()
+	_, insertErr := cir.db.ExecContext(ctx, query, args...)
+
+	if insertErr != nil {
+		return fmt.Errorf("inserting items to cart --> %w", insertErr)
+	}
+
 	return nil
 }
 
-func (cir *CartItemsRepository) SetReservationId(item model.CartItem, reservationId string) error {
+func (cir *CartItemsRepository) SetReservationId(ctx context.Context, item model.CartItem, reservationId string) error {
 
+	sb := sqlbuilder.MySQL.NewUpdateBuilder()
+	sb.Update(cartItemTable).
+		Set(sb.Assign("reservationID", reservationId)).
+		Where(sb.Equal("id", item.Id))
+
+	query, args := sb.Build()
+	result, updateErr := cir.db.ExecContext(ctx, query, args...)
+
+	if updateErr != nil {
+		return fmt.Errorf("cannot update reservationID --> %w", updateErr)
+	}
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return fmt.Errorf("cannot check rows affected when updating reservationID --> %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("item id %s not found", item.Id)
+	}
 	return nil
 }
-	
-
-

@@ -144,7 +144,7 @@ func Test_AddItemsService_GivenCartItemsServiceCreated(t *testing.T) {
 			mocks: func(m cartItemsServiceMocks, c chan<- int) {
 				m.repo.EXPECT().Add(gomock.Any(), randomCartItem).
 					Return(nil)
-				m.repo.EXPECT().SetReservationId(gomock.Any(), gomock.Any()).
+				m.repo.EXPECT().SetReservationId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			reservationFakeHttpHandler: func(t *testing.T, w http.ResponseWriter, r *http.Request, c chan<- int) {
@@ -165,7 +165,7 @@ func Test_AddItemsService_GivenCartItemsServiceCreated(t *testing.T) {
 			mocks: func(m cartItemsServiceMocks, c chan<- int) {
 				m.repo.EXPECT().Add(gomock.Any(), randomCartItem).
 					Return(nil)
-				m.repo.EXPECT().SetReservationId(gomock.Any(), gomock.Any()).
+				m.repo.EXPECT().SetReservationId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			reservationFakeHttpHandler: func(t *testing.T, w http.ResponseWriter, r *http.Request, c chan<- int) {
@@ -188,8 +188,8 @@ func Test_AddItemsService_GivenCartItemsServiceCreated(t *testing.T) {
 			mocks: func(m cartItemsServiceMocks, c chan<- int) {
 				m.repo.EXPECT().Add(gomock.Any(), randomCartItem).
 					Return(nil)
-				m.repo.EXPECT().SetReservationId(gomock.Any(), "fancyReservationId").
-					DoAndReturn(func(item model.CartItem, reservationId string) error {
+				m.repo.EXPECT().SetReservationId(gomock.Any(), gomock.Any(), "fancyReservationId").
+					DoAndReturn(func(ctx context.Context, item model.CartItem, reservationId string) error {
 						c<-1 // channel needs to be fed when setReservationId is called
 						return nil
 					})

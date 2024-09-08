@@ -80,7 +80,7 @@ func (cis *CartItemsService) ReserveItem(parentContext context.Context, item mod
 	}
 
 	// update the database
-	setResvIdErr := cis.repo.SetReservationId(item, reservationResponse.ReservationId)
+	setResvIdErr := cis.repo.SetReservationId(reqCtx, item, reservationResponse.ReservationId)
 	if setResvIdErr != nil {
 		log.
 			Error().
