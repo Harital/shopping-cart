@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
+	httpHandlers "github.com/Harital/shopping-cart/internal/adapters/handlers/http"
 	"github.com/Harital/shopping-cart/internal/adapters/repositories/mysql"
 	"github.com/Harital/shopping-cart/internal/core/services"
-	httpHandlers "github.com/Harital/shopping-cart/internal/adapters/handlers/http"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -51,7 +51,9 @@ func main() {
 		log.Error().Msg("Cannot connect to the database " + dbErr.Error())
 	}
 	repo := mysql.NewCartItemsRepository(db)
-	svc := services.NewCartItemsService(repo)
+
+	// These host values should be retrieved from env variables depending on the stac
+	svc := services.NewCartItemsService(repo, "http://www.reservationhost.com", 60*time.Second)
 	h := httpHandlers.NewCartItemsHandler(routerGroupWithoutAuth, svc)
 	h.Register()
 

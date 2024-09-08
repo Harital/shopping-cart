@@ -49,17 +49,13 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 
 func (cir *CartItemsRepository) Add(ctx context.Context, item model.CartItem) error {
 
-	addErr := cir.Add(ctx, item)
-	if addErr != nil {
-		return addErr
-	}
-
-	
-	go cir.reserveItem(item)
 	return nil
 }
 
-func (cir *CartItemsRepository) reserveItem(item model.CartItem) {
-	//ctx, cancel := context.WithTimeout()
+func (cir *CartItemsRepository) SetReservationId(item model.CartItem, reservationId string) error {
 
+	return nil
 }
+	
+
+

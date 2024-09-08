@@ -24,3 +24,23 @@ type CartItemRequest struct {
 	Version string   `json:"version"`
 	Item    CartItem `json:"item"`
 }
+
+// Identical to Cart Item Request, but since they are 2 diffent usages, they could diverge from each other.
+// Reusing the same struct could be error prone and difficult to mantain, if some field is added for one case,
+// but not needed for the other one
+type ItemReservationRequest struct {
+	Version string   `json:"version"`
+	Item    CartItem `json:"item"`
+}
+
+func NewItemReservationRequest(item CartItem) ItemReservationRequest {
+	return ItemReservationRequest{
+		Version: "1.0.0",
+		Item:    item,
+	}
+}
+
+type ItemReservationResponse struct {
+	Version       string `json:"version"`
+	ReservationId string `json:"reservationId"`
+}

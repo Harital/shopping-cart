@@ -18,6 +18,12 @@ For production environment, further db migration tools may be considered, like f
 
 # Directory structure
 
+# Used libraries
+gin
+resty
+gomock 
+
+
 # Other considerations
 Go generate for mocks
 Errors only written in the handler with errors wrapped, so we are avoiding n lines of error for a single failure

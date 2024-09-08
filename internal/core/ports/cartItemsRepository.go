@@ -10,4 +10,5 @@ import (
 type CartItemsRepository interface {
 	Get(ctx context.Context) ([]model.CartItem, error)
 	Add(ctx context.Context, item model.CartItem) (error)
+	SetReservationId(item model.CartItem, reservationId string) (error)
 }
