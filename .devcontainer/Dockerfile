@@ -40,11 +40,10 @@ WORKDIR $GOPATH/src
 ARG USERNAME
 ENV PATH=/usr/local/go/bin:/usr/local/go/:/home/${USERNAME}:/go/bin:${PATH}
 
-# Copy go packages and compiled code
+# Copy go packages
 COPY --from=base /usr/local/go/ /usr/local/go/
 
-# Update the alpine image packages to avoid possible Anchore issues and
-# add developer user and add it to sudoers file
+# add developer user and add it to sudoers file 
 RUN apk -U upgrade && \
     apk add --no-cache sudo&& \
     addgroup -S ${USERNAME} && \
@@ -63,7 +62,7 @@ RUN mkdir -p /home/${USERNAME}/.vscode-server/extensions \
 # Install required development packages, not available in original alpine distro
 # permissions in go foder should be open enough to let developer user read and write
 ENV GOPATH=/go
-RUN apk add --no-cache bash git openssh libc-dev gcc && \
+RUN apk add --no-cache bash git openssh mysql-client && \
     umask 0000 && \
     /usr/local/go/bin/go install -v golang.org/x/tools/gopls@v0.16.1 && \
     /usr/local/go/bin/go install -v github.com/go-delve/delve/cmd/dlv@v1.23.0 && \

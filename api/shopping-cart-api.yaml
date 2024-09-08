@@ -1,3 +1,5 @@
+# The swagger previewer extension should be installed in the dev environment
+# Press ctrl + mays + P and select "preview swagger"
 openapi: 3.0.3
 info:
   title: Shopping cart public api

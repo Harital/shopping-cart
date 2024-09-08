@@ -38,6 +38,10 @@ func main() {
 	// default context that handles the signals
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
+	// Create all handlers, services and repos. In production code a dependency injection tool may be advisable, 
+	// as this part could get potentially big
+
+
 	// We should setup an authenticated endpoint in production. In order to do that, middlewares should be added
 	//routerGroupWithoutAuth := router.Group("/shopping-cart/v1/")
 
