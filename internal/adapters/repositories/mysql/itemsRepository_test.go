@@ -26,7 +26,7 @@ type CartItemRepoMocks struct {
 
 // We use Gherkin notation for the tests
 func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
-	
+
 	type want struct {
 		err   error
 		items []model.CartItem
@@ -132,16 +132,16 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 		VALUES (?, ?, ?) ON DUPLICATED KEY UPDATE quantity = quantity + ?`
 
 	randomCartItem := model.CartItem{
-		Id:            "1",
-		Name:          "screen",
-		Quantity:      2,
+		Id:       "1",
+		Name:     "screen",
+		Quantity: 2,
 	}
 
 	type input struct {
 		item model.CartItem
 	}
 	type want struct {
-		err   error
+		err error
 	}
 
 	tests := []struct {
@@ -152,7 +152,7 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 	}{
 		{
 			name: "WhenAddItemAndInsertError_ThenError",
-			in: input {
+			in: input{
 				item: randomCartItem,
 			},
 			mocks: func(m CartItemRepoMocks) {
@@ -161,12 +161,12 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 					WithArgs(randomCartItem.Id, randomCartItem.Name, randomCartItem.Quantity, randomCartItem.Quantity).
 					WillReturnError(errors.New("insert error"))
 			},
-			want: want {
+			want: want{
 				err: randomError,
 			},
 		}, {
 			name: "WhenAddItemAndInsertOK_ThenOK",
-			in: input {
+			in: input{
 				item: randomCartItem,
 			},
 			mocks: func(m CartItemRepoMocks) {
@@ -175,7 +175,7 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 					WithArgs(randomCartItem.Id, randomCartItem.Name, randomCartItem.Quantity, randomCartItem.Quantity).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
-			want: want {
+			want: want{
 				err: nil,
 			},
 		},
@@ -192,9 +192,9 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 			tc.mocks(m)
 
 			r := NewCartItemsRepository(db)
-			
+
 			addErr := r.Add(context.TODO(), tc.in.item)
-			
+
 			if tc.want.err != nil {
 				assert.Error(t, addErr)
 			} else {
@@ -205,3 +205,94 @@ func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 
 }
 
+func Test_AddReserveationId_GivenInitializedRepository(t *testing.T) {
+	updateQuery := `UPDATE cartItem SET reservationID = ? WHERE id = ?`
+
+	randomCartItem := model.CartItem{
+		Id:       "1",
+		Name:     "screen",
+		Quantity: 2,
+	}
+	randomReservationID := "randomResvId"
+
+	type input struct {
+		item          model.CartItem
+		reservationId string
+	}
+	type want struct {
+		err error
+	}
+
+	tests := []struct {
+		name  string
+		in    input
+		mocks func(m CartItemRepoMocks)
+		want  want
+	}{
+		{
+			name: "WhenSetReservationIdAndErrorInQuery_ThenError",
+			in: input{
+				item:          randomCartItem,
+				reservationId: randomReservationID,
+			},
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.ExpectExec(updateQuery).
+					WithArgs(randomReservationID, randomCartItem.Id).
+					WillReturnError(errors.New("insert error"))
+			},
+			want: want{
+				err: randomError,
+			},
+		}, {
+			name: "WhenSetReservationIdAndNoRowsAffected_ThenError",
+			in: input{
+				item:          randomCartItem,
+				reservationId: randomReservationID,
+			},
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.ExpectExec(updateQuery).
+					WithArgs(randomReservationID, randomCartItem.Id).
+					WillReturnResult(sqlmock.NewResult(0, 0))
+			},
+			want: want{
+				err: randomError,
+			},
+		}, {
+			name: "WhenSetReservationIdAndOK_ThenOK",
+			in: input{
+				item:          randomCartItem,
+				reservationId: randomReservationID,
+			},
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.ExpectExec(updateQuery).
+					WithArgs(randomReservationID, randomCartItem.Id).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			want: want{
+				err: nil,
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db, dbMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+			if err != nil {
+				t.Fatalf("Error when creating the mock: %v", err)
+			}
+			m := CartItemRepoMocks{sql: dbMock}
+			defer db.Close()
+
+			tc.mocks(m)
+
+			r := NewCartItemsRepository(db)
+
+			addErr := r.SetReservationId(context.TODO(), tc.in.item, tc.in.reservationId)
+
+			if tc.want.err != nil {
+				assert.Error(t, addErr)
+			} else {
+				assert.NoError(t, addErr)
+			}
+		})
+	}
+}
