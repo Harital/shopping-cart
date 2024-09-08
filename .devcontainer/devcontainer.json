@@ -34,6 +34,7 @@
         "editorconfig.editorconfig",
         "redhat.vscode-yaml",
         "golang.Go",
+        "Arjun.swagger-viewer"
       ],
       "settings": {
         // Set default container specific settings when the container is created.

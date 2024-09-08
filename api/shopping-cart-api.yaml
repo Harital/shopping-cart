@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: Shopping cart public api
+  description: |-
+    API definition for the shopping cart exercise
+
+  contact:
+    name: Albert Vélez
+    email: albert.velez.ortiz@gmail.com
+
+  version: 1.0.11
+
+tags:
+  - name: Order management
+    description: order related operations
+    
+paths:
+  /shopping-cart/v1/items:
+    get:
+      tags: 
+        - Order management
+      summary: gets the items in the shopping cart
+      responses:
+        '200': 
+          description: retrieval ok. Items returned in the response
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/shoppingCartItems'
+        '401':
+          description: unauthorized. Not implemented
+        '500':
+          description: internal server error. 
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/errorResponse'
+    post:
+      tags: 
+        - Order management
+      summary: adds a new item to the cart
+      description: if the item is already added, it will sum the quantity
+      responses:
+        '200':
+          description: operation successful. Items added.
+        '401':
+          description: unauthorized. Not implemented
+        '400':
+          description: bad request. Query is not well formed.
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/errorResponse'
+        '500':
+          description: internal server error. 
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/errorResponse'
+        
+  
+    
+components:
+  schemas:
+    shoppingCartItem:
+      type: object
+      properties:
+        name: 
+          type: string
+          example: fancy pants
+        quantity:
+          type: integer
+          example: 1
+        reservationId: 
+         type: string
+         example: 1234
+      
+    shoppingCartItems:
+      type: object
+      properties:
+        version:
+          type: string
+          description: version of the response. It does not hurt and could potentially be used to differently parsing 2 different versions
+          example: 1.0.0
+        items:
+          type: array
+          items: 
+            $ref: '#/components/schemas/shoppingCartItem'
+            
+    errorResponse:
+      required:
+        - version
+      type: object
+      properties:
+        version:
+          type: string
+        message:
+          type: string
+          example: the cause of the error.
