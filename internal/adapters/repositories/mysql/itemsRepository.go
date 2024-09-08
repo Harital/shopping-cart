@@ -26,7 +26,7 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 	// Simple query. An stored procedure could be used to speed up the operation.
 	sb := sqlbuilder.MySQL.NewSelectBuilder()
 	sb.
-		Select("name", "quantity", "reservationId").
+		Select("id", "name", "quantity", "reservationId").
 		From(cartItemTable)
 
 	query, args := sb.Build()
@@ -41,8 +41,14 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 	for rows.Next() {
 		var singleItem model.CartItem
 
-		if scanErr := rows.Scan(&singleItem.Name, &singleItem.Quantity, &singleItem.ReservationId); scanErr != nil {
+		// ReservationID can be null, hence the need of the sql.NullString
+		var reservationId sql.NullString
+		if scanErr := rows.Scan(&singleItem.Id, &singleItem.Name, &singleItem.Quantity, &reservationId); scanErr != nil {
 			return []model.CartItem{}, fmt.Errorf("Scanning cart items properties --> %w", scanErr)
+		}
+
+		if reservationId.Valid {
+			singleItem.ReservationId = reservationId.String
 		}
 
 		items = append(items, singleItem)
@@ -61,7 +67,7 @@ func (cir *CartItemsRepository) Add(ctx context.Context, item model.CartItem) er
 
 	// I know it´s a little nasty, but sqlbuilder does not support on dupplicated key
 	// https://github.com/huandu/go-sqlbuilder/issues/15
-	builder := sqlbuilder.Build("$? ON DUPLICATED KEY UPDATE quantity = quantity + $?", sb, item.Quantity)
+	builder := sqlbuilder.Build("$? ON DUPLICATE KEY UPDATE quantity = quantity + $?", sb, item.Quantity)
 	query, args := builder.Build()
 	_, insertErr := cir.db.ExecContext(ctx, query, args...)
 

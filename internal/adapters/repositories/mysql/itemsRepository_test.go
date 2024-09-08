@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	cartItemsGetQuery = "SELECT name, quantity, reservationId FROM cartItem"
+	cartItemsGetQuery = "SELECT id, name, quantity, reservationId FROM cartItem"
 )
 
 var (
@@ -55,13 +55,29 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
-						"name", "quantity", "reservationId",
+						"id", "name", "quantity", "reservationId",
 					}).
-						AddRow("pants", nil, "reservationId1"))
+						AddRow("1", "pants", nil, "reservationId1"))
 			},
 			want: want{
 				err:   randomError,
 				items: []model.CartItem{},
+			},
+		}, {
+			name: "WhenGetAnd1ItemReturnWithoutReservationID_ThenOK",
+			mocks: func(m CartItemRepoMocks) {
+				m.sql.
+					ExpectQuery(cartItemsGetQuery).
+					WillReturnRows(sqlmock.NewRows([]string{
+						"id", "name", "quantity", "reservationId",
+					}).
+						AddRow("3", "pants", 1, nil))
+			},
+			want: want{
+				err: nil,
+				items: []model.CartItem{
+					{Id: "3", Name: "pants", Quantity: 1, ReservationId: ""},
+				},
 			},
 		}, {
 			name: "WhenGetAnd1ItemReturn_ThenOK",
@@ -69,14 +85,14 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
-						"name", "quantity", "reservationId",
+						"id", "name", "quantity", "reservationId",
 					}).
-						AddRow("pants", 1, "reservationId1"))
+						AddRow("3", "pants", 1, "reservationId1"))
 			},
 			want: want{
 				err: nil,
 				items: []model.CartItem{
-					{Name: "pants", Quantity: 1, ReservationId: "reservationId1"},
+					{Id: "3", Name: "pants", Quantity: 1, ReservationId: "reservationId1"},
 				},
 			},
 		}, {
@@ -85,16 +101,16 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
-						"name", "quantity", "reservationId",
+						"id", "name", "quantity", "reservationId",
 					}).
-						AddRow("bottle", 10, "reservationId5").
-						AddRow("shirt", 2, "reservationId2"))
+						AddRow("12", "bottle", 10, "reservationId5").
+						AddRow("14", "shirt", 2, "reservationId2"))
 			},
 			want: want{
 				err: nil,
 				items: []model.CartItem{
-					{Name: "bottle", Quantity: 10, ReservationId: "reservationId5"},
-					{Name: "shirt", Quantity: 2, ReservationId: "reservationId2"},
+					{Id: "12", Name: "bottle", Quantity: 10, ReservationId: "reservationId5"},
+					{Id: "14", Name: "shirt", Quantity: 2, ReservationId: "reservationId2"},
 				},
 			},
 		},
@@ -129,7 +145,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 
 func Test_AddCartItems_GivenInitializedRepository(t *testing.T) {
 	insertQuery := `INSERT INTO cartItem (id, name, quantity) 
-		VALUES (?, ?, ?) ON DUPLICATED KEY UPDATE quantity = quantity + ?`
+		VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?`
 
 	randomCartItem := model.CartItem{
 		Id:       "1",
