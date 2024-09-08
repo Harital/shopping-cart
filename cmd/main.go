@@ -8,6 +8,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Harital/shopping-cart/internal/adapters/repositories/mysql"
+	"github.com/Harital/shopping-cart/internal/core/services"
+	httpHandlers "github.com/Harital/shopping-cart/internal/adapters/handlers/http"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -38,12 +41,19 @@ func main() {
 	// default context that handles the signals
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
-	// Create all handlers, services and repos. In production code a dependency injection tool may be advisable, 
-	// as this part could get potentially big
-
-
 	// We should setup an authenticated endpoint in production. In order to do that, middlewares should be added
-	//routerGroupWithoutAuth := router.Group("/shopping-cart/v1/")
+	routerGroupWithoutAuth := router.Group("/shopping-cart/v1/")
+
+	// Create all handlers, services and repos. In production code a dependency injection tool may be advisable,
+	// as this part could get potentially big
+	db, dbErr := mysql.InitMySqlDB()
+	if dbErr != nil {
+		log.Error().Msg("Cannot connect to the database " + dbErr.Error())
+	}
+	repo := mysql.NewCartItemsRepository(db)
+	svc := services.NewCartItemsService(repo)
+	h := httpHandlers.NewCartItemsHandler(routerGroupWithoutAuth, svc)
+	h.Register()
 
 	// Start gin service
 	log.Debug().Msg("Running")

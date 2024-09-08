@@ -30,14 +30,14 @@ func (cih *CartItemshandler) Register() {
 func (cih CartItemshandler) getCartItems(c *gin.Context) {
 	items, getErr := cih.cartItemService.Get(c)
 
-	// Other error types should be checked here, like if the user is properly authenticated. 
-	// The response should be different dependint on the error type 
+	// Other error types should be checked here, like if the user is properly authenticated.
+	// The response should be different dependint on the error type
 	if getErr != nil {
 		resp := model.NewErrorResponse("Error getting the cart items")
 		c.JSON(http.StatusInternalServerError, resp)
 		return
 	}
-	
+
 	resp := model.NewGetCartITemsResponse(&items)
 	c.JSON(http.StatusOK, *resp)
 }

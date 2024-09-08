@@ -46,3 +46,7 @@ func (cir CartItemsRepository) Get(ctx context.Context) ([]model.CartItem, error
 
 	return items, nil
 }
+
+func (cir *CartItemsRepository) Add(ctx context.Context, items []model.CartItem) (error) {
+	return nil
+}
