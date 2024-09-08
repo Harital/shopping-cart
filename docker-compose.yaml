@@ -1,0 +1,52 @@
+version:  "2.4"
+services:
+  shopping-cart-service:
+    image: shopping-cart-image
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: production
+      args:
+        GO_VERSION: '1.22.6'
+        ALPINE_VERSION: '3.20'
+        USERNAME: developer
+        USER_UID: 1002
+    volumes:
+      - .:/go/src:rw
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - NO_PROXY=127.0.0.1,localhost,mysql,shopping-cart-service
+
+  mysql:
+    image: mysql:8.0-debian
+    container_name: shopping-cart-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+    # random port in order to have several mysql containers running at the same time
+      - 12345:3306
+    volumes:
+      - dbdata:/var/lib/mysql      
+    cap_add:
+      # Added CAP_SYS_NICE for MySQL to be able to handle thread priorities: https://stackoverflow.com/a/55706057/4825517
+      - SYS_NICE
+    networks:
+      internal:
+        aliases:
+          - mysql
+    healthcheck:
+      test: mysql --user=root --password=root -e 'SELECT 1'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+
+
+# Define volume for persistent storage
+volumes:
+  dbdata:
+
+networks:
+  internal:

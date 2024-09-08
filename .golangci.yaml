@@ -1,0 +1,62 @@
+# Refer to golangci-lint's reference config file for more options and information:
+# https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+# Linters reference: https://golangci-lint.run/usage/quick-start/
+linters:
+  disable-all: true
+  enable:
+   - bodyclose
+   - dupl           # Tool for code clone detection (fast)
+   - errcheck
+   - exportloopref
+   - exhaustruct
+   - funlen         # Tool for detection of long functions (fast)
+   - gochecknoinits # Checks that no init functions are present in Go code (fast)
+   - goconst        # Finds repeated strings that could be replaced by a constant (fast)
+   - gocyclo        # Computes and checks the cyclomatic complexity of functions (fast)
+   - gofmt          # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification (fast)
+   - goimports      # Check import statements are formatted according to the 'goimport' command. Reformat imports in autofix mode (fast)
+   - gosec
+   - gosimple
+   - govet
+   - ineffassign    # Detects when assignments to existing variables are not used (fast)
+   - lll            # Reports long lines (fast)
+   - misspell       # Finds commonly misspelled English words in comments (fast)
+   - nakedret       # Checks that functions with naked returns are not longer than a maximum size (can be zero) (fast)
+   - staticcheck
+   - stylecheck
+   - typecheck
+   - unconvert
+   - unparam
+   - unused
+
+
+linters-settings:
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 100
+    statements: 50
+  gocyclo:
+    min-complexity: 15
+  lll:
+    line-length: 140
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - path: (.+)_test.go
+      linters:
+        - exhaustruct
+        - errcheck
+        - goconst
+    - path: (.+)_test.go
+      linters:
+        - gosec
+      text: "G104:"

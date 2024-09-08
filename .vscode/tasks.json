@@ -1,0 +1,144 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "go build -v -o go-project-template src/cmd/main.go",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Build All",
+      "type": "shell",
+      "command": "go build -v -buildvcs=false ./...",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "mkdir -p ./output; golangci-lint run ./...",
+      "windows": {
+        "command": "IF not exist %./output% (mkdir %./output%); golangci-lint run ./...",
+      },
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Tests",
+      "type": "shell",
+      "command": "mkdir -p ./output; go test -v ./... -coverprofile ./output/testsCoverage.out; go tool cover -html ./output/testsCoverage.out -o ./output/testsCoverage.html",
+      "windows": {
+        "command": "IF not exist %./output% (mkdir %./output%); go test -v ./... -coverprofile ./output/testsCoverage.out; go tool cover -html ./output/testsCoverage.out -o ./output/testsCoverage.html",
+      },
+      "group": {
+        "kind": "test"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Docs",
+      "type": "shell",
+      "command": "godoc -http=:6060 -goroot=/go/src",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "LiveReload",
+      "type": "shell",
+      "command": "air -c .air.toml",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Sonar",
+      "type": "shell",
+      "command": "quality/run_sonar.sh",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#87f547"
+        }
+      }
+    },
+    {
+      "label": "Docker Build & Start",
+      "type": "shell",
+      "command": "docker-compose up --build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "statusbar": {
+          "color": "#ffea02"
+        }
+      }
+    },
+    {
+      "label": "Docker Start",
+      "type": "shell",
+      "command": "docker-compose up",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#ffea02"
+        }
+      }
+    },
+    {
+      "label": "Docker Stop",
+      "type": "shell",
+      "command": "docker-compose down",
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "statusbar": {
+          "color": "#ffea02"
+        }
+      }
+    },
+  ]
+}

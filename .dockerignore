@@ -1,0 +1,10 @@
+deploy
+.dockerignore
+.editorconfig
+.gitignore
+Dockerfile
+*.yaml
+*.yml
+README.md
+.vscode
+.github
