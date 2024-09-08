@@ -14,9 +14,9 @@ const (
 	cartItemsGetQuery = "SELECT name, quantity, reservationId FROM cartItem"
 )
 
-// Always useful to add mocks into the struct, so it´s easier to add more mocks in the future
+// Always useful to add CartItemRepoMocks into the struct, so it´s easier to add more CartItemRepoMocks in the future
 // No additional parameters are needed.
-type mocks struct {
+type CartItemRepoMocks struct {
 	sql sqlmock.Sqlmock
 }
 
@@ -31,12 +31,12 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		mocks func(m mocks)
+		mocks func(m CartItemRepoMocks)
 		want  want
 	}{
 		{
 			name: "WhenGetAndErrorInSelect_ThenError",
-			mocks: func(m mocks) {
+			mocks: func(m CartItemRepoMocks) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnError(randomError)
@@ -47,7 +47,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 			},
 		}, {
 			name: "WhenGetAndErrorInScan_ThenError",
-			mocks: func(m mocks) {
+			mocks: func(m CartItemRepoMocks) {
 				// We need to call NewRows in every test 
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
@@ -62,7 +62,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 			},
 		}, {
 			name: "WhenGetAnd1ItemReturn_ThenOK",
-			mocks: func(m mocks) {
+			mocks: func(m CartItemRepoMocks) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
@@ -78,7 +78,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 			},
 		}, {
 			name: "WhenGetAndSeveralItemsReturn_ThenOK",
-			mocks: func(m mocks) {
+			mocks: func(m CartItemRepoMocks) {
 				m.sql.
 					ExpectQuery(cartItemsGetQuery).
 					WillReturnRows(sqlmock.NewRows([]string{
@@ -103,7 +103,7 @@ func Test_GetCartItems_GivenInitializedRepository(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Error when creating the mock: %v", err)
 			}
-			m := mocks{sql: dbMock}
+			m := CartItemRepoMocks{sql: dbMock}
 			defer db.Close()
 
 			tc.mocks(m)
