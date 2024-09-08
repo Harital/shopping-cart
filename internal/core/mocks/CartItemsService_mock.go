@@ -41,7 +41,7 @@ func (m *MockCartItemsService) EXPECT() *MockCartItemsServiceMockRecorder {
 }
 
 // Add mocks base method.
-func (m *MockCartItemsService) Add(arg0 context.Context, arg1 []model.CartItem) error {
+func (m *MockCartItemsService) Add(arg0 context.Context, arg1 model.CartItem) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Add", arg0, arg1)
 	ret0, _ := ret[0].(error)

@@ -22,13 +22,14 @@ paths:
       tags: 
         - Order management
       summary: gets the items in the shopping cart
+      operationId: getItemsFromCart
       responses:
         '200': 
           description: retrieval ok. Items returned in the response
           content: 
             application/json:
               schema: 
-                $ref: '#/components/schemas/shoppingCartItems'
+                $ref: '#/components/schemas/shoppingCartItemsResponse'
         '401':
           description: unauthorized. Not implemented
         '500':
@@ -41,10 +42,18 @@ paths:
       tags: 
         - Order management
       summary: adds a new item to the cart
-      description: if the item is already added, it will sum the quantity
+      description: if the item is already added, it will sum the quantity. Name is not really necessary. Only id.
+      operationId: addItemToCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+            # Added item in the json so the request can be expandible. It´s "free" and ensure backwards compatibility
+              $ref: '#/components/schemas/shoppingCartItemRequest'
       responses:
-        '200':
-          description: operation successful. Items added.
+        '202':
+          description: Items added. Reservatin id processed in background
+          # We could reserve 200 to a fully completed operation, where the reservation id is retrieved
         '401':
           description: unauthorized. Not implemented
         '400':
@@ -67,6 +76,10 @@ components:
     shoppingCartItem:
       type: object
       properties:
+        id: 
+          type: string
+          example: "1"
+          description: id of the item. String to make it agnostic to the storage
         name: 
           type: string
           example: fancy pants
@@ -76,8 +89,14 @@ components:
         reservationId: 
          type: string
          example: 1234
-      
-    shoppingCartItems:
+
+    shoppingCartItemRequest:
+      type: object
+      properties: 
+        item: 
+          $ref: '#/components/schemas/shoppingCartItem'
+
+    shoppingCartItemsResponse:
       type: object
       properties:
         version:

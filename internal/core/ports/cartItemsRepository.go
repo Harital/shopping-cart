@@ -9,5 +9,5 @@ import (
 //go:generate mockgen -destination=../mocks/CartItemsRepository_mock.go -package=mocks . CartItemsRepository
 type CartItemsRepository interface {
 	Get(ctx context.Context) ([]model.CartItem, error)
-	Add(ctx context.Context, items []model.CartItem) (error)
+	Add(ctx context.Context, item model.CartItem) (error)
 }

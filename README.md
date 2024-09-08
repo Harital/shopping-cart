@@ -20,7 +20,21 @@ For production environment, further db migration tools may be considered, like f
 
 # Other considerations
 Go generate for mocks
+Errors only written in the handler with errors wrapped, so we are avoiding n lines of error for a single failure
+Not responding very verbose erros to the customer for security reasons. Details are dumped in the logs.
+Mocks are generated with 
+```bash
+go generate ./...
+```
 
 ## Tests
 Test structure
 Gherkin notation
+
+## potential imprivements
+Authentication
+Request id to track queries. This request id could be returned in the error response and in the logs in order to match the erroneous queries.
+Modification of log levels
+Add secrets manager for storing secret values (users, passwords, etc)
+Add env variables depending on stack (dev, stg, pro) in order to tweak values as db host, reserve host....
+
