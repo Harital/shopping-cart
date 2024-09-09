@@ -60,7 +60,6 @@ func (cis *CartItemsService) ReserveItem(parentContext context.Context, item mod
 		SetContext(reqCtx).
 		Post(cis.reserverHost + reserverEndpoint)
 
-		log.Error().Msg("patata")
 	if reservationErr != nil {
 		log.
 			Error().

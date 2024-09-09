@@ -4,12 +4,12 @@
   "prettier.enable": false,
   "prettier.embeddedLanguageFormatting": "off",
   // GO settings
-  "go.coverOnSingleTestFile": false,
-  "go.coverOnSave": false,
+  "go.coverOnSingleTestFile": true,
+  "go.coverOnSave": true,
   "go.coverageDecorator": {
-    "type": "gutter",
-    "coveredHighlightColor": "rgba(64,128,128,0.5)",
-    "uncoveredHighlightColor": "rgba(128,64,64,0.25)",
+    "coveredHighlightColor": "rgba(64,128,128,0.2)",
+    "uncoveredHighlightColor": "rgba(128,64,64,0.2)",
+    "coveredBorderColor": "rgba(64,128,128,0.05)",
     "coveredGutterStyle": "blockgreen",
     "uncoveredGutterStyle": "blockred"
   },
