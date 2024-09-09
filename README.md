@@ -12,6 +12,8 @@ For simplicity, there is only 1 cart, so the get and post methods always access 
 
 More details about the endpoints syntax can be found in api/shopping-cart-api.yaml
 
+For simplicity, the reserve call is made using a goroutine. However, a more advanced approach could be taken depending on the needs: I.E: batch processs several queries on a single request.
+
 ## Usage
 - Checkout git project
 - Have installed docker and docker-compose (I have tested it in linux)
