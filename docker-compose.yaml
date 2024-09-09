@@ -1,3 +1,4 @@
+# Docker compose file that constructs all dockers necessary for the application
 version:  "2.4"
 services:
   shopping-cart-service:
@@ -13,6 +14,10 @@ services:
         USER_UID: 1002
     volumes:
       - .:/go/src:rw
+    networks:
+      internal:
+        aliases:
+          - shopping-cart-app
     depends_on:
       mysql:
         condition: service_healthy
@@ -26,7 +31,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     ports:
     # random port in order to have several mysql containers running at the same time
-      - 12345:3306
+      - 45478:3306
     volumes:
       - dbdata:/var/lib/mysql      
     cap_add:
@@ -41,8 +46,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-
-
 
 # Define volume for persistent storage
 volumes:
